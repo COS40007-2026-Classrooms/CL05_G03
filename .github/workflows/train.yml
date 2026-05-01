@@ -1,54 +1,49 @@
 name: Train Power Consumption ML model
 
-on: 
+on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
   workflow_dispatch:
-    
 
 jobs:
   train:
-    runs-on: ubuntu-latest 
+    runs-on: ubuntu-latest
 
-      steps:
-      #1. Checkout the repo code
+    steps:
+      # 1. Checkout the repo code
       - name: Checkout code
         uses: actions/checkout@v4
 
-      #2. Setup Python 
+      # 2. Setup Python
       - name: Setup Python
         uses: actions/setup-python@v5
-          with:
-            Python-version: '3.11'
-      
-      #3. Cache pip packages so when we run it again it won't install the packages again
+        with:
+          python-version: "3.11"
+
+      # 3. Cache pip packages
       - name: Cache pip dependencies
-          uses: actions/cache@v4
-            with:
-              path: ~/.cache/pip
-              key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
-              restore-keys: |
-                ${{ runner.os }}-pip-
-        
-      #4. Install Dependencies in Requirements.txt file
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      # 4. Install dependencies
       - name: Install Dependencies
-          run: pip install -r requirements.txt
+        run: pip install -r requirements.txt
 
-      #5. Train the model (model.py)
+      # 5. Train the model
       - name: Train the model
-          run: python model.py
+        run: python model.py
 
+      # 6. Upload results
       - name: Upload Results
-          uses: actions/upload-artifact@v4
-          with: 
-            name: Model-Results
-            path: |
-              model_results.png
-              metrics.txt
-
-
-
-
-      
+        uses: actions/upload-artifact@v4
+        with:
+          name: Model-Results
+          path: |
+            model_results.png
+            metrics.txt
