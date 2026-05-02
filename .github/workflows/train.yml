@@ -47,3 +47,4 @@ jobs:
           path: |
             model_results.png
             metrics.txt
+            best_model.joblib
