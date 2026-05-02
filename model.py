@@ -196,8 +196,9 @@ print(f"  >> Dataset loaded successfully: {len(df)} rows, {df.shape[1]} columns"
 # ----- STEP 2: Data preprocesing -----
 print("\n[STEP 2/7] Data preprocessing")
 df = clean_and_preprocess_the_data(df)
-df = apply_outliers_removing(df)
 plot_the_boxplots(df)
+df = apply_outliers_removing(df)
+
 
 # ----- STEP 2: FEATURE ENGINEERING -----
 print("\n[STEP 3/7] Engineering features...")
