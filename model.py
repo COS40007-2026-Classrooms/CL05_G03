@@ -74,6 +74,92 @@ def load_and_normalize(csv_path):
     df['datetime'] = pd.to_datetime(df['datetime'], format='%m/%d/%Y %H:%M')
     return df
 
+def clean_and_preprocess_the_data(df: pd.DataFrame):
+    print("\n[Preprocessing] Starting data cleaning...")
+
+    df_clean = df.copy()
+    # --------------------------------------------------
+    # 1. Remove duplicates
+    # --------------------------------------------------
+    before = df_clean.shape[0]
+    df_clean = df_clean.drop_duplicates()
+    print(f"Duplicates removed: {before - df_clean.shape[0]}")
+  
+
+
+    # --------------------------------------------------
+    # 2. Handle missing values
+    # --------------------------------------------------
+    missing_before = df_clean.isnull().sum().sum()
+    print(f"Missing values existed: {missing_before}")
+    
+    if (missing_before != 0) :
+     # For numerical  fill with median
+     num_cols = df_clean.select_dtypes(include=[np.number]).columns
+     for col in num_cols:
+        df_clean[col] = df_clean[col].fillna(df_clean[col].median())
+
+    # For datetime  drop if missing (important)
+    df_clean = df_clean.dropna(subset=['datetime'])
+
+    missing_after = df_clean.isnull().sum().sum()
+    print(f"Missing values handled: {missing_before - missing_after}")
+    # --------------------------------------------------
+    # 3. Final check
+    # --------------------------------------------------
+    print(f"Final dataset size: {df_clean.shape}")
+    return df_clean
+
+def apply_outliers_removing(df):
+    numerical_cols = df.select_dtypes(include=[np.number]).drop(columns =[TARGET_COLUMN])
+    df_clean = df.copy()
+    #first quantile
+       
+    for col in numerical_cols:
+      Q1 = df_clean[col].quantile(0.25)
+      #second quantile
+      Q3 = df_clean[col].quantile(0.75)
+      IQR = Q3 - Q1
+ 
+      lower_bound = Q1 - 1.5 * IQR
+      upper_bound = Q3 + 1.5 * IQR
+ 
+      #select and remove the outliers based on the upper and lower bound
+      print(f"{col}: remaining rows {df_clean.shape[0]}")
+      df_clean = df_clean[(df_clean[col] >= lower_bound) & (df_clean[col] <= upper_bound)]
+
+    return df_clean
+
+
+
+
+def plot_the_boxplots(df:pd.DataFrame):
+    #Plotting the plots....
+    df_sample_plot = df.sample(n=2000, random_state=42)
+    print("Starting plotting")
+    numerical_cols = df_sample_plot.select_dtypes(include=[np.number]).drop(columns =[TARGET_COLUMN]).columns.to_list()
+    #ploting
+    print(numerical_cols)
+    #creating plotings
+    fig , axes = plt.subplots(ncols= 3  , nrows=  len(numerical_cols)//3+1  , figsize = (15,14))
+    #flatten the axes
+    axes  = axes.ravel()
+
+ 
+
+    for i , col in enumerate(numerical_cols):
+     if i < len(axes):
+      axes[i].boxplot(df_sample_plot[col].dropna() , showfliers = False)
+      axes[i].set_title(col)
+
+    #Hide addtional plotings
+    for j in  range(7,9):
+     axes[j].set_visible(False)
+    plt.tight_layout()
+    plt.savefig("BoxPlots.png")
+    print("Plot has been saved")
+
+
 
 def engineer_features(df):
     """Add 5 engineered features. Pure function — no side effects."""
@@ -103,12 +189,18 @@ print("Group CL05_G03 — COS40007 AI Engineering")
 print("=" * 70)
 
 # ----- STEP 1: LOAD DATA -----
-print("\n[STEP 1/6] Loading dataset...")
+print("\n[STEP 1/7] Loading dataset...")
 df = load_and_normalize('power_consumption.csv')
 print(f"  >> Dataset loaded successfully: {len(df)} rows, {df.shape[1]} columns")
 
+# ----- STEP 2: Data preprocesing -----
+print("\n[STEP 2/7] Data preprocessing")
+df = clean_and_preprocess_the_data(df)
+df = apply_outliers_removing(df)
+plot_the_boxplots(df)
+
 # ----- STEP 2: FEATURE ENGINEERING -----
-print("\n[STEP 2/6] Engineering features...")
+print("\n[STEP 3/7] Engineering features...")
 df = engineer_features(df)
 print("  >> Features engineered successfully:")
 print("     - hour_sin, hour_cos    (cyclical time encoding)")
@@ -123,7 +215,7 @@ y = df_sample[TARGET_COLUMN]
 print(f"  >> Sampled {len(df_sample)} rows for training")
 
 # ----- STEP 3: TRAIN/TEST SPLIT -----
-print("\n[STEP 3/6] Splitting data into train/test sets (80/20)...")
+print("\n[STEP 4/7] Splitting data into train/test sets (80/20)...")
 X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.2, random_state=42
 )
@@ -142,7 +234,7 @@ test_set.to_csv('test_set.csv', index=False)
 print(f"  >> test_set.csv saved successfully ({len(test_set)} rows)")
 
 # ----- STEP 4: MODEL TRAINING -----
-print("\n[STEP 4/6] Training Random Forest model...")
+print("\n[STEP 5/7] Training Random Forest model...")
 model = RandomForestRegressor(
     n_estimators=100, random_state=42, n_jobs=-1
 )
@@ -150,7 +242,7 @@ model.fit(X_train, y_train)
 print("  >> Model trained successfully (Random Forest, 100 estimators)")
 
 # ----- STEP 5: PREDICTIONS & EVALUATION -----
-print("\n[STEP 5/6] Evaluating model on test set...")
+print("\n[STEP 6/7] Evaluating model on test set...")
 y_pred = model.predict(X_test)
 
 mae  = float(mean_absolute_error(y_test, y_pred))
@@ -162,7 +254,7 @@ print(f"     RMSE = {rmse:.2f} W")
 print(f"     R2   = {r2:.4f}")
 
 # ----- STEP 6: BUILD DEPLOYMENT BUNDLE -----
-print("\n[STEP 6/6] Building deployment bundle...")
+print("\n[STEP 7/7] Building deployment bundle...")
 quantiles = np.quantile(y_train, [0.25, 0.5, 0.75])
 category_thresholds = {
     'low':    float(quantiles[0]),
