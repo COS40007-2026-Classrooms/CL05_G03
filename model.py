@@ -156,7 +156,7 @@ def plot_the_boxplots(df:pd.DataFrame):
     for j in  range(7,9):
      axes[j].set_visible(False)
     plt.tight_layout()
-    plt.savefig("BoxPlots.png")
+    plt.savefig("BoxPlots_Outliers.png")
     print("Plot has been saved")
 
 
@@ -210,7 +210,7 @@ print("     - hdd                   (Heating Degree Day proxy)")
 print("     - cdd                   (Cooling Degree Day proxy)")
 
 # Sample for fast pipeline runs on the GitHub Actions free runner
-df_sample = df.sample(n=5000, random_state=42).reset_index(drop=True)
+df_sample = df.sample(n=52000, random_state=42).reset_index(drop=True)
 X = df_sample[FEATURE_COLUMNS]
 y = df_sample[TARGET_COLUMN]
 print(f"  >> Sampled {len(df_sample)} rows for training")
