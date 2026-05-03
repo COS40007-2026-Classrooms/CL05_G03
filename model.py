@@ -11,7 +11,7 @@ artefacts required by the GitHub Actions workflow:
   best_model.joblib    — deployment bundle (model + schema + thresholds)
 
 Random Forest is selected because the team's separate model comparison
-(all_model_test.py) confirmed it as the best-performing model
+confirmed it as the best-performing model
 for this regression task.
 """
 
@@ -19,7 +19,6 @@ for this regression task.
 # 1. IMPORTS
 # ============================================================================
 from datetime import datetime
-
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -110,6 +109,7 @@ def clean_and_preprocess_the_data(df: pd.DataFrame):
     print(f"Final dataset size: {df_clean.shape}")
     return df_clean
 
+# Handling outliers
 def apply_outliers_removing(df):
     numerical_cols = df.select_dtypes(include=[np.number]).drop(columns =[TARGET_COLUMN])
     df_clean = df.copy()
@@ -200,7 +200,7 @@ plot_the_boxplots(df)
 df = apply_outliers_removing(df)
 
 
-# ----- STEP 2: FEATURE ENGINEERING -----
+# ----- STEP 3: FEATURE ENGINEERING -----
 print("\n[STEP 3/7] Engineering features...")
 df = engineer_features(df)
 print("  >> Features engineered successfully:")
@@ -215,7 +215,7 @@ X = df_sample[FEATURE_COLUMNS]
 y = df_sample[TARGET_COLUMN]
 print(f"  >> Sampled {len(df_sample)} rows for training")
 
-# ----- STEP 3: TRAIN/TEST SPLIT -----
+# ----- STEP 4: TRAIN/TEST SPLIT -----
 print("\n[STEP 4/7] Splitting data into train/test sets (80/20)...")
 X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.2, random_state=42
@@ -234,7 +234,7 @@ test_set[TARGET_COLUMN] = y_test.values
 test_set.to_csv('test_set.csv', index=False)
 print(f"  >> test_set.csv saved successfully ({len(test_set)} rows)")
 
-# ----- STEP 4: MODEL TRAINING -----
+# ----- STEP 5: MODEL TRAINING -----
 print("\n[STEP 5/7] Training Random Forest model...")
 model = RandomForestRegressor(
     n_estimators=100, random_state=42, n_jobs=-1
@@ -242,7 +242,7 @@ model = RandomForestRegressor(
 model.fit(X_train, y_train)
 print("  >> Model trained successfully (Random Forest, 100 estimators)")
 
-# ----- STEP 5: PREDICTIONS & EVALUATION -----
+# ----- STEP 6: PREDICTIONS & EVALUATION -----
 print("\n[STEP 6/7] Evaluating model on test set...")
 y_pred = model.predict(X_test)
 
@@ -254,7 +254,7 @@ print(f"     MAE  = {mae:.2f} W")
 print(f"     RMSE = {rmse:.2f} W")
 print(f"     R2   = {r2:.4f}")
 
-# ----- STEP 6: BUILD DEPLOYMENT BUNDLE -----
+# ----- STEP 7: BUILD DEPLOYMENT BUNDLE -----
 print("\n[STEP 7/7] Building deployment bundle...")
 quantiles = np.quantile(y_train, [0.25, 0.5, 0.75])
 category_thresholds = {
@@ -301,7 +301,7 @@ print(f"  MAE  (Mean Absolute Error):     {mae:.2f} W")
 print(f"  RMSE (Root Mean Squared Error): {rmse:.2f} W")
 print(f"  R2   (Coefficient of Determ.):  {r2:.4f}")
 print()
-print("Demand category thresholds (equal-frequency binning):")
+print("Demand category thresholds (equal-width binning):")
 print(f"  Low       : <= {quantiles[0]:.0f} W")
 print(f"  Medium    : <= {quantiles[1]:.0f} W")
 print(f"  High      : <= {quantiles[2]:.0f} W")
@@ -338,7 +338,7 @@ with open('metrics.txt', 'w') as f:
     f.write(f"  R2   (Coefficient of Determ.):  {r2:.4f}\n\n")
 
     f.write("=" * 70 + "\n")
-    f.write("DEMAND CATEGORY THRESHOLDS (equal-frequency binning)\n")
+    f.write("DEMAND CATEGORY THRESHOLDS (equal-width binning)\n")
     f.write("=" * 70 + "\n")
     f.write(f"  Low       : <= {category_thresholds['low']:.2f} W\n")
     f.write(f"  Medium    : <= {category_thresholds['medium']:.2f} W\n")
@@ -400,5 +400,4 @@ print()
 print("PIPELINE COMPLETED SUCCESSFULLY")
 print("=" * 70)
 
-#test1 github automation
-#test sithum
+
