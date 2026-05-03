@@ -48,3 +48,5 @@ jobs:
             model_results.png
             metrics.txt
             best_model.joblib
+            train_set.csv
+            test_set.csv
