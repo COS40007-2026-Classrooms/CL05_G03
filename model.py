@@ -211,10 +211,9 @@ print("     - cdd                   (Cooling Degree Day proxy)")
 
 # Sample for fast pipeline runs on the GitHub Actions free runner
 print(len(df))
-df_sample = df.sample(n=43000, random_state=42).reset_index(drop=True)
-X = df_sample[FEATURE_COLUMNS]
-y = df_sample[TARGET_COLUMN]
-print(f"  >> Sampled {len(df_sample)} rows for training")
+X = df[FEATURE_COLUMNS]
+y = df[TARGET_COLUMN]
+print(f"  >> Use  {len(df)} rows for training")
 
 # ----- STEP 4: TRAIN/TEST SPLIT -----
 print("\n[STEP 4/7] Splitting data into train/test sets (80/20)...")
