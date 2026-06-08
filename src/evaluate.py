@@ -41,13 +41,13 @@ def main():
     rmse = float(np.sqrt(mean_squared_error(y_test, y_pred)))
     r2 = float(r2_score(y_test, y_pred))
 
-    bundle["training_metadata"]["metrics"] = { # Add evaluation metrics to the training metadata in the deployment bundle for record-keeping and future reference
+    '''bundle["training_metadata"]["metrics"] = { # Add evaluation metrics to the training metadata in the deployment bundle for record-keeping and future reference
         "MAE": mae,
         "RMSE": rmse,
         "R2": r2,
     }
     bundle["training_metadata"]["n_test"] = len(X_test)
-    joblib.dump(bundle, model_path)
+    joblib.dump(bundle, model_path)'''
 
     metrics = {
         "timestamp": datetime.now().isoformat(timespec="seconds"), # Record the timestamp of the evaluation for tracking and historical analysis
