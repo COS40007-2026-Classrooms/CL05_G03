@@ -32,6 +32,8 @@ def main():
     #laod the train data frame
     train_df = pd.read_csv(train_path)
 
+    #create report structure
+
     report = {
         "timestamp": datetime.now().isoformat(timespec="seconds"),
         "data_quality": {},
