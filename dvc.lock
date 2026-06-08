@@ -3,34 +3,34 @@ stages:
   train:
     cmd: python3 src/model.py
     deps:
+    - path: artifacts/processed_train.csv
+      hash: md5
+      md5: f0e3c87b2713f4acce413a1a83428040
+      size: 3915068
     - path: params.yaml
       hash: md5
-      md5: 12811248e73f6826d2fef4393a77a533
-      size: 216
+      md5: e30fcd66a82435387aaa812fc4e4bb4c
+      size: 356
     - path: src/model.py
       hash: md5
-      md5: c1a16b254ae1ebc9221941bebb799abd
-      size: 2996
-    - path: train/train.csv
-      hash: md5
-      md5: 93880229419ae78dc93c703998e2fcad
-      size: 3919969
+      md5: 54f801f2ad6beb5f591b3f6ecffcc994
+      size: 3006
     outs:
     - path: models/best_model.joblib
       hash: md5
-      md5: c1cb2aabd834f371a6d7e11e2e83f38b
-      size: 317833222
+      md5: 1ec9d98731202b22eadfe13a5566a457
+      size: 320581318
   evaluate:
     cmd: python3 src/evaluate.py
     deps:
     - path: models/best_model.joblib
       hash: md5
-      md5: c1cb2aabd834f371a6d7e11e2e83f38b
-      size: 317833222
+      md5: 1ec9d98731202b22eadfe13a5566a457
+      size: 320581318
     - path: params.yaml
       hash: md5
-      md5: 12811248e73f6826d2fef4393a77a533
-      size: 216
+      md5: e30fcd66a82435387aaa812fc4e4bb4c
+      size: 356
     - path: src/evaluate.py
       hash: md5
       md5: 4367be83ac829a88bf3f5db8ebf9678d
@@ -40,15 +40,63 @@ stages:
       md5: 22a96c648fae7e100518cf9375286ea6
       size: 982124
     outs:
+    - path: artifacts/model_results.png
+      hash: md5
+      md5: 3932ea8a773e32c90fbba9d200af8222
+      size: 168535
     - path: metrics.json
       hash: md5
-      md5: 3065f9f2231abfaa37e93537f4bebeb7
-      size: 203
+      md5: 09647cce1ac1d80de2ce232608b2418d
+      size: 202
     - path: metrics.txt
       hash: md5
-      md5: 2693d0e8d0d9935973e9c14ef59b321b
+      md5: aa8563b758a585fcb0db40717e6e9d27
       size: 322
     - path: model_results.png
       hash: md5
-      md5: 56ff7a298f9cb8be0ccf4521066277b0
-      size: 168577
+      md5: 3932ea8a773e32c90fbba9d200af8222
+      size: 168535
+  generate_new_data:
+    cmd: python3 src/generate_new_data.py
+    deps:
+    - path: params.yaml
+      hash: md5
+      md5: e30fcd66a82435387aaa812fc4e4bb4c
+      size: 356
+    - path: src/generate_new_data.py
+      hash: md5
+      md5: aebcb60a0adb07cab05c9e060412e74c
+      size: 1557
+    - path: train/train.csv
+      hash: md5
+      md5: 93880229419ae78dc93c703998e2fcad
+      size: 3919969
+    outs:
+    - path: data/new_data.csv
+      hash: md5
+      md5: e708aad3ac269662aded1aee4cdaaa77
+      size: 49336
+  preprocess:
+    cmd: python3 src/preprocess_new_data.py
+    deps:
+    - path: data/new_data.csv
+      hash: md5
+      md5: e708aad3ac269662aded1aee4cdaaa77
+      size: 49336
+    - path: params.yaml
+      hash: md5
+      md5: e30fcd66a82435387aaa812fc4e4bb4c
+      size: 356
+    - path: src/preprocess_new_data.py
+      hash: md5
+      md5: 21820df917ac3c917f3cdba0cef8fb23
+      size: 2605
+    - path: train/train.csv
+      hash: md5
+      md5: 93880229419ae78dc93c703998e2fcad
+      size: 3919969
+    outs:
+    - path: artifacts/processed_train.csv
+      hash: md5
+      md5: f0e3c87b2713f4acce413a1a83428040
+      size: 3915068
