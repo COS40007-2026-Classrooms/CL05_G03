@@ -4,6 +4,9 @@ model:
 
 data:
   target_column: zone1_power
+  train_path: train/train.csv
+  test_path: test/test.csv
 
-evaluate:
+outputs:
+  model_path: models/best_model.joblib
   metrics_path: metrics.json
