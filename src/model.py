@@ -1,5 +1,6 @@
 from datetime import datetime
 import os
+import json
 import yaml
 import joblib
 import pandas as pd
@@ -7,7 +8,7 @@ import numpy as np
 
 from sklearn.ensemble import RandomForestRegressor
 
-SCHEMA_VERSION = "1.0" # Increment this if we make breaking changes to the model input/output schema
+SCHEMA_VERSION = "1.0"
 
 FEATURE_COLUMNS = [
     "zone2_power",
@@ -22,12 +23,32 @@ FEATURE_COLUMNS = [
 ]
 
 
+def retraining_required():
+    report_path = "monitoring/reports/drift_report.json"
+
+    if not os.path.exists(report_path):
+        print("No drift report found. Retraining will run.")
+        return True
+
+    with open(report_path, "r") as f:
+        report = json.load(f)
+
+    required = report.get("retraining_required", True)
+
+    if required:
+        print("Retraining required based on monitoring report.")
+    else:
+        print("No retraining required. Existing model will be kept.")
+
+    return required
+
+
 def main():
     print("=" * 70)
     print("Training Zone 1 Power Consumption Model")
     print("=" * 70)
 
-    with open("params.yaml", "r") as f: # Load training parameters from YAML file
+    with open("params.yaml", "r") as f:
         params = yaml.safe_load(f)
 
     train_path = params["data"]["processed_train_path"]
@@ -37,7 +58,15 @@ def main():
     n_estimators = params["model"]["n_estimators"]
     random_state = params["model"]["random_state"]
 
-    os.makedirs("models", exist_ok=True) # Ensure the output directory exists
+    os.makedirs("models", exist_ok=True)
+
+    if not retraining_required():
+        if os.path.exists(model_path):
+            print(f"Existing model found: {model_path}")
+            print("Skipping model training.")
+            return
+        else:
+            print("No existing model found. Training will run anyway.")
 
     print(f"Loading training data from {train_path}")
     train_df = pd.read_csv(train_path)
@@ -49,15 +78,15 @@ def main():
     print(f"Features: {len(FEATURE_COLUMNS)}")
 
     model = RandomForestRegressor(
-        n_estimators=n_estimators, # Use the number of trees specified in the parameters
-        random_state=random_state, # Use the random state specified in the parameters for reproducibility
-        n_jobs=-1 # Use all available CPU cores for training to speed up the process
+        n_estimators=n_estimators,
+        random_state=random_state,
+        n_jobs=-1
     )
 
     print("Training Random Forest model")
     model.fit(X_train, y_train)
 
-    quantiles = np.quantile(y_train, [0.25, 0.5, 0.75]) # Calculate quantiles for categorizing power consumption into low, medium, and high
+    quantiles = np.quantile(y_train, [0.25, 0.5, 0.75])
 
     category_thresholds = {
         "low": float(quantiles[0]),
@@ -87,10 +116,11 @@ def main():
             "n_features": len(FEATURE_COLUMNS),
             "n_estimators": n_estimators,
             "random_state": random_state,
+            "retrained": True,
         },
     }
 
-    joblib.dump(deployment_bundle, model_path) # Save the trained model and metadata as a deployment bundle using joblib for efficient serialization
+    joblib.dump(deployment_bundle, model_path)
 
     print(f"Model saved to {model_path}")
     print("Training completed successfully")
