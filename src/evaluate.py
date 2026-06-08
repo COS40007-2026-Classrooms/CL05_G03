@@ -16,18 +16,18 @@ def main():
     print("Evaluating Zone 1 Power Consumption Model")
     print("=" * 70)
 
-    with open("params.yaml", "r") as f:
-        params = yaml.safe_load(f)
+    with open("params.yaml", "r") as f: # Load evaluation parameters from YAML file
+        params = yaml.safe_load(f) # Load evaluation parameters from YAML file
 
     test_path = params["data"]["test_path"]
     target_column = params["data"]["target_column"]
     model_path = params["outputs"]["model_path"]
     metrics_path = params["outputs"]["metrics_path"]
 
-    os.makedirs("artifacts", exist_ok=True)
+    os.makedirs("artifacts", exist_ok=True) # Ensure the output directory for artifacts exists
 
-    test_df = pd.read_csv(test_path)
-    bundle = joblib.load(model_path)
+    test_df = pd.read_csv(test_path) # Load the test dataset from the specified path in the parameters
+    bundle = joblib.load(model_path) # Load the trained model and metadata from the specified path in the parameters using joblib for efficient deserialization
 
     model = bundle["model"]
     feature_columns = bundle["feature_columns"]
@@ -37,11 +37,11 @@ def main():
 
     y_pred = model.predict(X_test)
 
-    mae = float(mean_absolute_error(y_test, y_pred))
+    mae = float(mean_absolute_error(y_test, y_pred)) 
     rmse = float(np.sqrt(mean_squared_error(y_test, y_pred)))
     r2 = float(r2_score(y_test, y_pred))
 
-    bundle["training_metadata"]["metrics"] = {
+    bundle["training_metadata"]["metrics"] = { # Add evaluation metrics to the training metadata in the deployment bundle for record-keeping and future reference
         "MAE": mae,
         "RMSE": rmse,
         "R2": r2,
@@ -50,8 +50,8 @@ def main():
     joblib.dump(bundle, model_path)
 
     metrics = {
-        "timestamp": datetime.now().isoformat(timespec="seconds"),
-        "model_type": bundle["model_name"],
+        "timestamp": datetime.now().isoformat(timespec="seconds"), # Record the timestamp of the evaluation for tracking and historical analysis
+        "model_type": bundle["model_name"], 
         "metrics": {
             "MAE": mae,
             "RMSE": rmse,
@@ -59,11 +59,11 @@ def main():
         },
     }
 
-    with open(metrics_path, "w") as f:
-        json.dump(metrics, f, indent=4)
+    with open(metrics_path, "w") as f: # Save the evaluation metrics to a JSON file specified in the parameters for easy access and integration with other tools or dashboards
+        json.dump(metrics, f, indent=4) # Save the evaluation metrics to a JSON file specified in the parameters for easy access and integration with other tools or dashboards
 
-    with open("metrics.txt", "w") as f:
-        f.write("=" * 70 + "\n")
+    with open("metrics.txt", "w") as f: 
+        f.write("=" * 70 + "\n") 
         f.write("ZONE 1 POWER CONSUMPTION MODEL EVALUATION\n")
         f.write("=" * 70 + "\n\n")
         f.write(f"Model: {bundle['model_name']}\n")
