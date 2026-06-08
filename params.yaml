@@ -3,10 +3,17 @@ model:
   random_state: 42
 
 data:
-  target_column: zone1_power
   train_path: train/train.csv
   test_path: test/test.csv
+  new_data_path: data/new_data.csv
+  processed_train_path: artifacts/processed_train.csv
+  target_column: zone1_power
+  
 
 outputs:
   model_path: models/best_model.joblib
   metrics_path: metrics.json
+
+retraining:
+  min_new_rows: 50
+  new_rows: 300
