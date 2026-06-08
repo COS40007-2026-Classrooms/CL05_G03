@@ -79,6 +79,7 @@ def main():
         if col != target_column and col in new_df.columns
     ]
 
+    #drift detection 
     for col in numeric_cols:
         stat, p_value = ks_2samp(train_df[col], new_df[col])
 
