@@ -6,7 +6,6 @@ import yaml
 import pandas as pd
 from scipy.stats import ks_2samp
 
-from CL05_G03.src.model import retraining_required
 
 
 
