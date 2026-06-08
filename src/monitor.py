@@ -6,6 +6,8 @@ import yaml
 import pandas as pd
 from scipy.stats import ks_2samp
 
+from CL05_G03.src.model import retraining_required
+
 
 
 #main definition
@@ -103,6 +105,9 @@ def main():
 
     if drift_detected:
         report["alerts"].append("Data drift detected in one or more features.")
+
+    retraining_required = drift_detected or len(report["alerts"]) > 0
+    report["retraining_required"] = bool(retraining_required)
 
     # -----------------------------
     # Performance monitoring
