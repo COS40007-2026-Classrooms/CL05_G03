@@ -1,0 +1,9 @@
+model:
+  n_estimators: 100
+  random_state: 42
+
+data:
+  target_column: zone1_power
+
+evaluate:
+  metrics_path: metrics.json
