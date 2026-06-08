@@ -1,0 +1,32 @@
+stages:
+
+  train:
+    cmd: python3 src/model.py
+
+    deps:
+      - src/model.py
+      - params.yaml
+      - train/train.csv
+
+    outs:
+      - models/best_model.joblib
+
+  evaluate:
+    cmd: python3 src/evaluate.py
+
+    deps:
+      - src/evaluate.py
+      - params.yaml
+      - test/test.csv
+      - models/best_model.joblib
+
+    metrics:
+      - metrics.json:
+          cache: false
+
+    outs:
+      - metrics.txt:
+          cache: false
+
+      - model_results.png:
+          cache: false
