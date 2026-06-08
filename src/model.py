@@ -7,7 +7,7 @@ import numpy as np
 
 from sklearn.ensemble import RandomForestRegressor
 
-SCHEMA_VERSION = "1.0"
+SCHEMA_VERSION = "1.0" # Increment this if we make breaking changes to the model input/output schema
 
 FEATURE_COLUMNS = [
     "zone2_power",
@@ -27,7 +27,7 @@ def main():
     print("Training Zone 1 Power Consumption Model")
     print("=" * 70)
 
-    with open("params.yaml", "r") as f:
+    with open("params.yaml", "r") as f: # Load training parameters from YAML file
         params = yaml.safe_load(f)
 
     train_path = params["data"]["train_path"]
@@ -37,7 +37,7 @@ def main():
     n_estimators = params["model"]["n_estimators"]
     random_state = params["model"]["random_state"]
 
-    os.makedirs("models", exist_ok=True)
+    os.makedirs("models", exist_ok=True) # Ensure the output directory exists
 
     print(f"Loading training data from {train_path}")
     train_df = pd.read_csv(train_path)
@@ -49,15 +49,15 @@ def main():
     print(f"Features: {len(FEATURE_COLUMNS)}")
 
     model = RandomForestRegressor(
-        n_estimators=n_estimators,
-        random_state=random_state,
-        n_jobs=-1
+        n_estimators=n_estimators, # Use the number of trees specified in the parameters
+        random_state=random_state, # Use the random state specified in the parameters for reproducibility
+        n_jobs=-1 # Use all available CPU cores for training to speed up the process
     )
 
     print("Training Random Forest model")
     model.fit(X_train, y_train)
 
-    quantiles = np.quantile(y_train, [0.25, 0.5, 0.75])
+    quantiles = np.quantile(y_train, [0.25, 0.5, 0.75]) # Calculate quantiles for categorizing power consumption into low, medium, and high
 
     category_thresholds = {
         "low": float(quantiles[0]),
@@ -90,7 +90,7 @@ def main():
         },
     }
 
-    joblib.dump(deployment_bundle, model_path)
+    joblib.dump(deployment_bundle, model_path) # Save the trained model and metadata as a deployment bundle using joblib for efficient serialization
 
     print(f"Model saved to {model_path}")
     print("Training completed successfully")
