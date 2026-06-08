@@ -1,4 +1,4 @@
-name: Train Power Consumption ML model
+name: DVC MLOps Pipeline
 
 on:
   push:
@@ -12,17 +12,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Checkout the repo code
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      # 2. Setup Python
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
-      # 3. Cache pip packages
       - name: Cache pip dependencies
         uses: actions/cache@v4
         with:
@@ -31,22 +30,36 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pip-
 
-      # 4. Install dependencies
-      - name: Install Dependencies
+      - name: Install dependencies
         run: pip install -r requirements.txt
 
-      # 5. Train the model
-      - name: Train the model
-        run: python model.py
+      - name: Configure DVC remote
+        run: |
+          dvc remote modify origin auth basic
+          dvc remote modify origin user ${{ secrets.DAGSHUB_USERNAME }}
+          dvc remote modify origin password ${{ secrets.DAGSHUB_TOKEN }}
 
-      # 6. Upload results
-      - name: Upload Results
+      - name: Pull DVC data
+        run: dvc pull
+
+      - name: Run DVC pipeline
+        run: dvc repro
+
+      - name: Push DVC outputs
+        run: dvc push
+
+      - name: Show DVC metrics
+        run: |
+          dvc metrics show
+          dvc metrics diff HEAD~1 || echo "No previous metrics to compare"
+
+      - name: Upload model and results
         uses: actions/upload-artifact@v4
         with:
-          name: Model-Results
+          name: model-results
           path: |
-            model_results.png
+            models/best_model.joblib
+            metrics.json
             metrics.txt
-            best_model.joblib
-            train_set.csv
-            test_set.csv
+            model_results.png
+            artifacts/model_results.png
