@@ -29,11 +29,10 @@ def main():
     os.makedirs("monitoring/logs", exist_ok=True)
     os.makedirs("monitoring/alerts", exist_ok=True)
      
-    #laod the train data frame
+    #load the train data frame
     train_df = pd.read_csv(train_path)
 
     #create report structure
-
     report = {
         "timestamp": datetime.now().isoformat(timespec="seconds"),
         "data_quality": {},
@@ -74,6 +73,7 @@ def main():
     drift_results = {}
     drift_detected = False
 
+    #assigned numerical columns
     numeric_cols = [
         col for col in train_df.select_dtypes(include="number").columns
         if col != target_column and col in new_df.columns
