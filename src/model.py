@@ -30,7 +30,7 @@ def main():
     with open("params.yaml", "r") as f: # Load training parameters from YAML file
         params = yaml.safe_load(f)
 
-    train_path = params["data"]["train_path"]
+    train_path = params["data"]["processed_train_path"]
     target_column = params["data"]["target_column"]
     model_path = params["outputs"]["model_path"]
 
