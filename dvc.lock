@@ -25,16 +25,16 @@ stages:
     deps:
     - path: models/best_model.joblib
       hash: md5
-      md5: 0f9e43024b6da4b1175265e7993164e1
-      size: 317833309
+      md5: c1cb2aabd834f371a6d7e11e2e83f38b
+      size: 317833222
     - path: params.yaml
       hash: md5
       md5: 12811248e73f6826d2fef4393a77a533
       size: 216
     - path: src/evaluate.py
       hash: md5
-      md5: 0f420871197d9e114c50f8de0813cc9f
-      size: 4052
+      md5: 4367be83ac829a88bf3f5db8ebf9678d
+      size: 4058
     - path: test/test.csv
       hash: md5
       md5: 22a96c648fae7e100518cf9375286ea6
@@ -42,7 +42,7 @@ stages:
     outs:
     - path: metrics.json
       hash: md5
-      md5: 705a9bc344fe078a5895eddef5814e99
+      md5: 3065f9f2231abfaa37e93537f4bebeb7
       size: 203
     - path: metrics.txt
       hash: md5
