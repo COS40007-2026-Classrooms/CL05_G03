@@ -1,0 +1,12 @@
+======================================================================
+ZONE 1 POWER CONSUMPTION MODEL EVALUATION
+======================================================================
+
+Model: Random Forest
+Testing samples: 8787
+Number of features: 9
+
+Performance Metrics:
+  MAE:  662.00 W
+  RMSE: 1043.45 W
+  R2:   0.9787
