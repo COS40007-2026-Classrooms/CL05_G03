@@ -129,7 +129,7 @@ with tab1:
        if st.button("Predict Power Consumption"):
         
         with st.spinner("Predicting power consumption..."):
-         st.balloons()
+        
  
          input_data = pd.DataFrame(
          [[
