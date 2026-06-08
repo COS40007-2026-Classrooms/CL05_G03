@@ -7,23 +7,29 @@ import pandas as pd
 from scipy.stats import ks_2samp
 
 
+
+#main definition
 def main():
     print("=" * 70)
     print("Running monitoring checks")
     print("=" * 70)
 
+    #Open the yaml file as read
     with open("params.yaml", "r") as f:
         params = yaml.safe_load(f)
 
+    #loads the paths and column using the yaml
     train_path = params["data"]["train_path"]
     new_data_path = params["data"]["new_data_path"]
     metrics_path = params["outputs"]["metrics_path"]
     target_column = params["data"]["target_column"]
 
+    #making directories
     os.makedirs("monitoring/reports", exist_ok=True)
     os.makedirs("monitoring/logs", exist_ok=True)
     os.makedirs("monitoring/alerts", exist_ok=True)
-
+     
+    #laod the train data frame
     train_df = pd.read_csv(train_path)
 
     report = {
