@@ -7,6 +7,6 @@ Testing samples: 8787
 Number of features: 9
 
 Performance Metrics:
-  MAE:  662.00 W
-  RMSE: 1043.45 W
-  R2:   0.9787
+  MAE:  662.51 W
+  RMSE: 1045.84 W
+  R2:   0.9786

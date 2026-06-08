@@ -1,0 +1,54 @@
+schema: '2.0'
+stages:
+  train:
+    cmd: python3 src/model.py
+    deps:
+    - path: params.yaml
+      hash: md5
+      md5: 12811248e73f6826d2fef4393a77a533
+      size: 216
+    - path: src/model.py
+      hash: md5
+      md5: c1a16b254ae1ebc9221941bebb799abd
+      size: 2996
+    - path: train/train.csv
+      hash: md5
+      md5: 93880229419ae78dc93c703998e2fcad
+      size: 3919969
+    outs:
+    - path: models/best_model.joblib
+      hash: md5
+      md5: c1cb2aabd834f371a6d7e11e2e83f38b
+      size: 317833222
+  evaluate:
+    cmd: python3 src/evaluate.py
+    deps:
+    - path: models/best_model.joblib
+      hash: md5
+      md5: 0f9e43024b6da4b1175265e7993164e1
+      size: 317833309
+    - path: params.yaml
+      hash: md5
+      md5: 12811248e73f6826d2fef4393a77a533
+      size: 216
+    - path: src/evaluate.py
+      hash: md5
+      md5: 0f420871197d9e114c50f8de0813cc9f
+      size: 4052
+    - path: test/test.csv
+      hash: md5
+      md5: 22a96c648fae7e100518cf9375286ea6
+      size: 982124
+    outs:
+    - path: metrics.json
+      hash: md5
+      md5: 705a9bc344fe078a5895eddef5814e99
+      size: 203
+    - path: metrics.txt
+      hash: md5
+      md5: 2693d0e8d0d9935973e9c14ef59b321b
+      size: 322
+    - path: model_results.png
+      hash: md5
+      md5: 56ff7a298f9cb8be0ccf4521066277b0
+      size: 168577
