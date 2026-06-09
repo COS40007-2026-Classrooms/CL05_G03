@@ -8,8 +8,10 @@ import numpy as np
 
 from sklearn.ensemble import RandomForestRegressor
 
+# Version number used to track the deployment bundle structure
 SCHEMA_VERSION = "1.0"
 
+# Features selected based on previous EDA and feature engineering
 FEATURE_COLUMNS = [
     "zone2_power",
     "zone3_power",
@@ -24,15 +26,19 @@ FEATURE_COLUMNS = [
 
 
 def retraining_required():
+    # Path to the monitoring report generated earlier
     report_path = "monitoring/reports/drift_report.json"
 
+    # If no monitoring report exists, retraining should proceed
     if not os.path.exists(report_path):
         print("No drift report found. Retraining will run.")
         return True
 
+    # Load the monitoring report
     with open(report_path, "r") as f:
         report = json.load(f)
 
+    # Check whether retraining is required
     required = report.get("retraining_required", True)
 
     if required:
@@ -48,9 +54,11 @@ def main():
     print("Training Zone 1 Power Consumption Model")
     print("=" * 70)
 
+    # Load training settings from params.yaml
     with open("params.yaml", "r") as f:
         params = yaml.safe_load(f)
 
+    # Read file paths and model settings
     train_path = params["data"]["processed_train_path"]
     target_column = params["data"]["target_column"]
     model_path = params["outputs"]["model_path"]
@@ -58,8 +66,10 @@ def main():
     n_estimators = params["model"]["n_estimators"]
     random_state = params["model"]["random_state"]
 
+    # Create the models folder if it does not exist
     os.makedirs("models", exist_ok=True)
 
+    # Skip retraining if monitoring indicates it is unnecessary
     if not retraining_required():
         if os.path.exists(model_path):
             print(f"Existing model found: {model_path}")
@@ -69,14 +79,18 @@ def main():
             print("No existing model found. Training will run anyway.")
 
     print(f"Loading training data from {train_path}")
+
+    # Load the processed training dataset
     train_df = pd.read_csv(train_path)
 
+    # Separate features and target variable
     X_train = train_df[FEATURE_COLUMNS]
     y_train = train_df[target_column]
 
     print(f"Training rows: {len(X_train)}")
     print(f"Features: {len(FEATURE_COLUMNS)}")
 
+    # Create the Random Forest model using settings from params.yaml
     model = RandomForestRegressor(
         n_estimators=n_estimators,
         random_state=random_state,
@@ -84,8 +98,11 @@ def main():
     )
 
     print("Training Random Forest model")
+
+    # Train the model using the training dataset
     model.fit(X_train, y_train)
 
+    # Calculate quartiles to define energy consumption categories
     quantiles = np.quantile(y_train, [0.25, 0.5, 0.75])
 
     category_thresholds = {
@@ -94,6 +111,7 @@ def main():
         "high": float(quantiles[2]),
     }
 
+    # Store feature statistics for future validation and monitoring
     feature_ranges = {
         col: {
             "min": float(X_train[col].min()),
@@ -103,6 +121,7 @@ def main():
         for col in FEATURE_COLUMNS
     }
 
+    # Save everything needed for deployment in a single bundle
     deployment_bundle = {
         "schema_version": SCHEMA_VERSION,
         "trained_at": datetime.now().isoformat(timespec="seconds"),
@@ -116,10 +135,13 @@ def main():
             "n_features": len(FEATURE_COLUMNS),
             "n_estimators": n_estimators,
             "random_state": random_state,
+
+            # Indicates that this model was produced during retraining
             "retrained": True,
         },
     }
 
+    # Save the deployment bundle as a joblib file
     joblib.dump(deployment_bundle, model_path)
 
     print(f"Model saved to {model_path}")
@@ -130,4 +152,4 @@ if __name__ == "__main__":
     main()
 
 
-#test
+# test
