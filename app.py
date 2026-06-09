@@ -6,12 +6,12 @@ import numpy as np
 # ------------------------------------
 # Load Deployment Bundle
 # ------------------------------------
-bundle = joblib.load("best_model.joblib")
+bundle = joblib.load("models/best_model.joblib")
 
 model = bundle["model"]
 feature_columns = bundle["feature_columns"]
 thresholds = bundle["category_thresholds"]
-metrics = bundle["training_metadata"]["metrics"]
+#metrics = bundle["training_metadata"]["metrics"]
 
 if "zone1_pwr" not in st.session_state:
    st.session_state.zone1_pwr = []
