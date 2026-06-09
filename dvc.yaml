@@ -1,6 +1,6 @@
 stages:
   generate_new_data:
-    cmd: python src/generate_new_data.py
+    cmd: python3 src/generate_new_data.py
     deps:
       - src/generate_new_data.py
       - params.yaml
@@ -9,7 +9,7 @@ stages:
       - data/new_data.csv
 
   preprocess:
-    cmd: python src/preprocess_new_data.py
+    cmd: python3 src/preprocess_new_data.py
     deps:
       - src/preprocess_new_data.py
       - params.yaml
@@ -19,7 +19,7 @@ stages:
       - artifacts/processed_train.csv
 
   monitor:
-    cmd: python src/monitor.py
+    cmd: python3 src/monitor.py
     deps:
       - src/monitor.py
       - params.yaml
@@ -34,7 +34,7 @@ stages:
           cache: false
 
   train:
-    cmd: python src/model.py
+    cmd: python3 src/model.py
     deps:
       - src/model.py
       - params.yaml
@@ -44,7 +44,7 @@ stages:
       - models/best_model.joblib
 
   evaluate:
-    cmd: python src/evaluate.py
+    cmd: python3 src/evaluate.py
     deps:
       - src/evaluate.py
       - params.yaml
