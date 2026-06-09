@@ -1,6 +1,7 @@
 name: Retraining and Monitoring Pipeline
 
 on:
+  # Run this workflow automatically when important project files change
   push:
     branches: [main]
     paths:
@@ -12,54 +13,71 @@ on:
       - "dvc.yaml"
       - ".github/workflows/train.yml"
 
+  # Allow the workflow to be triggered manually from GitHub Actions
   workflow_dispatch:
 
+  # Run the workflow automatically every Sunday at midnight (UTC)
   schedule:
-  - cron: "0 0 * * 0"
+    - cron: "0 0 * * 0"
 
 jobs:
   retrain-and-monitor:
+    # Use the latest Ubuntu runner provided by GitHub
     runs-on: ubuntu-latest
 
     steps:
+      # Download the repository contents to the GitHub runner
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
+          # Fetch the full commit history for metrics comparison
           fetch-depth: 0
 
+      # Install the required Python version
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
+      # Install all project dependencies listed in requirements.txt
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      # Configure the DVC remote storage using DagsHub credentials
       - name: Configure DVC remote
         run: |
           dvc remote modify origin auth basic
           dvc remote modify origin user ${{ secrets.DAGSHUB_USERNAME }}
           dvc remote modify origin password ${{ secrets.DAGSHUB_TOKEN }}
 
+      # Download the latest version of data and artifacts tracked by DVC
       - name: Pull DVC data
         run: dvc pull --allow-missing
 
+      # Execute the DVC pipeline
+      # Only stages with changed dependencies will be re-run
       - name: Run DVC retraining and monitoring pipeline
         run: dvc repro
 
+      # Display the DVC pipeline structure in the workflow logs
       - name: Show DVC pipeline graph
         run: dvc dag
 
+      # Display current metrics and compare them with the previous version
+      # This helps monitor whether model performance improved or degraded
       - name: Show metrics
         run: |
           dvc metrics show
           dvc metrics diff HEAD~1 || echo "No previous metrics to compare"
 
+      # Upload newly generated models and artifacts to DVC remote storage
       - name: Push DVC outputs
         run: dvc push
 
+      # Save important outputs as GitHub Actions artifacts
+      # These can be downloaded later from the workflow run page
       - name: Upload model, metrics, and monitoring reports
         uses: actions/upload-artifact@v4
         with:
