@@ -1,5 +1,6 @@
 stages:
   generate_new_data:
+    # Generate synthetic new data for testing the retraining pipeline
     cmd: python3 src/generate_new_data.py
     deps:
       - src/generate_new_data.py
@@ -9,6 +10,7 @@ stages:
       - data/new_data.csv
 
   preprocess:
+    # Combine old training data with new data and prepare it for retraining
     cmd: python3 src/preprocess_new_data.py
     deps:
       - src/preprocess_new_data.py
@@ -19,6 +21,7 @@ stages:
       - artifacts/processed_train.csv
 
   monitor:
+    # Run data quality checks and drift detection
     cmd: python3 src/monitor.py
     deps:
       - src/monitor.py
@@ -26,6 +29,7 @@ stages:
       - train/train.csv
       - data/new_data.csv
     outs:
+      # Monitoring reports are not cached because they are logs/reports
       - monitoring/reports/drift_report.json:
           cache: false
       - monitoring/alerts/alerts.json:
@@ -34,6 +38,7 @@ stages:
           cache: false
 
   train:
+    # Train or skip retraining based on the monitoring report
     cmd: python3 src/model.py
     deps:
       - src/model.py
@@ -44,6 +49,7 @@ stages:
       - models/best_model.joblib
 
   evaluate:
+    # Evaluate the trained model using the test dataset
     cmd: python3 src/evaluate.py
     deps:
       - src/evaluate.py
@@ -51,9 +57,11 @@ stages:
       - test/test.csv
       - models/best_model.joblib
     metrics:
+      # Store model evaluation metrics for DVC tracking
       - metrics.json:
           cache: false
     outs:
+      # Save evaluation reports and result images
       - metrics.txt:
           cache: false
       - model_results.png:
