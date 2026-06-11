@@ -18,34 +18,6 @@ The system estimates Zone 1 power demand from environmental variables, time-base
 
 ---
 
-## Repository structure
-
-```
-CL05_G03/
-├── .github/workflows/
-│   └── train.yml              # CI/CD: retraining & monitoring pipeline
-├── src/
-│   ├── model.py               # Train Random Forest model
-│   ├── evaluate.py            # Evaluate model, write metrics & plots
-│   ├── monitor.py             # Data quality, drift & performance monitoring
-│   ├── preprocess_new_data.py # Preprocess incoming data
-│   └── generate_new_data.py   # Simulate new incoming data
-├── train/train.csv            # Training data (DVC-tracked)
-├── test/test.csv              # Test data (DVC-tracked)
-├── data/new_data.csv          # New data to trigger retraining
-├── models/best_model.joblib   # Serialised model bundle (model + features + thresholds + metadata)
-├── artifacts/                 # Centralised pipeline outputs
-├── monitoring/                # Drift reports, alerts, logs
-├── app.py                     # Streamlit prediction UI
-├── model.py                   # Root training script (used by Actions)
-├── power_consumption.csv      # Source dataset
-├── params.yaml                # Pipeline & model parameters
-├── dvc.yaml                   # DVC pipeline definition
-├── metrics.json / metrics.txt # Latest evaluation metrics
-└── requirements.txt
-```
-
----
 
 ## Getting started
 
