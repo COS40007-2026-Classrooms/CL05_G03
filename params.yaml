@@ -16,4 +16,4 @@ outputs:
 
 retraining:
   min_new_rows: 50
-  new_rows: 350
+  new_rows: 500
